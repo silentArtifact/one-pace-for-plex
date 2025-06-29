@@ -151,13 +151,13 @@ After renaming you can convert the episodes to MP4 using the x265 codec and embe
 
 1. Copy `transcode.py` from the `/dist/` folder to your `One Pace` directory.
 2. Run `python3 transcode.py --dry-run` to view the ffmpeg commands that would be executed.
-3. When satisfied remove `--dry-run` to transcode the files. Use `--replace` if you want the original files deleted after conversion.
+3. When satisfied remove `--dry-run` to transcode the files. Use `--replace` if you want the original files deleted after conversion. Pass `--embed-artwork` to automatically attach the season poster to each episode.
 
 ```
     python3 transcode.py --replace
 ```
 
-The script requires `ffmpeg` to be installed and will embed title, show title, season and episode metadata into the resulting `.mp4` file.
+The script requires `ffmpeg` to be installed and will embed title, show title, season and episode metadata into the resulting `.mp4` file. Additional metadata like the One Pace arc name, original anime episode references and optional cover artwork are also included.
 
 ### 6. Install XBMCnfoTVImporter
 
