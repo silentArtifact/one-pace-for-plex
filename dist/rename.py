@@ -215,7 +215,7 @@ def main():
         exceptions: dict[str, dict[str, int]] = json.load(json_file)
 
     # create a lookup table of nfo data
-    nfo_data_lookup: dict[tuple(int, int, bool), Episode] = {}
+    nfo_data_lookup: dict[tuple[int, int, bool], Episode] = {}
     nfo_files = (SCRIPT_DIR.parent / SHOW_NAME).rglob(f"*{NFO_EXT}")
     for filepath in nfo_files:
         nfo_data = get_episode_from_nfo(filepath)
@@ -237,7 +237,7 @@ def main():
 
     # create a pending rename file list
     pending: list[Episode] = []
-    pending_snfo: list[tuple(Path, Path)] = []
+    pending_snfo: list[tuple[Path, Path]] = []
 
     # iterate over season folders
     for season_title, season_no in seasons.items():
