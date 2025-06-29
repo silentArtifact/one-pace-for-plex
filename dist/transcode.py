@@ -7,9 +7,13 @@ matching .nfo file is embedded into the resulting mp4 file.
 """
 
 import argparse
+import logging
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(message)s")
+logger = logging.getLogger(__name__)
 
 MKV_EXT = ".mkv"
 MP4_EXT = ".mp4"
@@ -30,7 +34,7 @@ def parse_nfo(nfo_path: Path) -> dict[str, str]:
 def transcode_file(media_path: Path, replace: bool, dry_run: bool) -> None:
     nfo_path = media_path.with_suffix(".nfo")
     if not nfo_path.exists():
-        print(f"Skipping {media_path}: missing nfo")
+        logger.warning("Skipping %s: missing nfo", media_path)
         return
 
     meta = parse_nfo(nfo_path)
@@ -53,10 +57,10 @@ def transcode_file(media_path: Path, replace: bool, dry_run: bool) -> None:
     cmd.append(str(output_path))
 
     if dry_run:
-        print("DRYRUN:", " ".join(cmd))
+        logger.info("DRYRUN: %s", " ".join(cmd))
         return
 
-    print("Running:", " ".join(cmd))
+    logger.info("Running: %s", " ".join(cmd))
     subprocess.run(cmd, check=True)
 
     if replace and media_path.suffix != MP4_EXT:

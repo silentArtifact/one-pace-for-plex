@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""Rename One Pace media files and patch metadata for Plex.
+
+This utility scans a One Pace directory structure and renames episode
+video files as well as accompanying ``.nfo`` files so that Plex can
+correctly recognise them.  It can also copy base metadata from the
+``dist`` directory, apply patches to ``.nfo`` files and perform dry runs
+for testing.
+"""
 
 import argparse
 import dataclasses
@@ -10,6 +18,10 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Optional
 import filecmp
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(message)s")
+logger = logging.getLogger(__name__)
 
 args: Optional[dict] = None
 SCRIPT_DIR = Path(__file__).parent
@@ -102,7 +114,7 @@ def clean_tree(fpath: Path):
     try:
         tree = ET.parse(str(fpath.absolute()))
     except Exception as e:
-        print(fpath, e)
+        logger.warning("%s %s", fpath, e)
         return
     root = tree.getroot()
     to_remove = []
@@ -281,9 +293,9 @@ def main():
                         episode_no = exception_ep
                         matches.add(filepath)
                 if len(matches) >= 2:
-                    print("Warning! Multiple exception episodes found:")
+                    logger.warning("Multiple exception episodes found:")
                     for match in matches:
-                        print(match)
+                        logger.warning("%s", match)
                     continue
                 elif len(matches) == 1:
                     pending.append(
@@ -311,8 +323,10 @@ def main():
                 (episode.season, episode.number, True)
             )
         if nfo_data is None:
-            print(
-                f"Warning! Episode {episode.number} in season {episode.season} found, but metadata is missing"
+            logger.warning(
+                "Episode %s in season %s found, but metadata is missing",
+                episode.number,
+                episode.season,
             )
             continue
 
@@ -330,11 +344,11 @@ def copy_if_different(src, dst, dry_run):
             if filecmp.cmp(src, dst):
                 return
         except Exception as e:
-            print(f'Issues comparing {src} with {dst}: {e}')
+            logger.warning("Issues comparing %s with %s: %s", src, dst, e)
     if dry_run:
-        print(f'DRYRUN: copy "{src}" -> "{dst}"')
+        logger.info('DRYRUN: copy "%s" -> "%s"', src, dst)
         return
-    print(f'COPYING: "{src}" -> "{dst}"')
+    logger.info('COPYING: "%s" -> "%s"', src, dst)
     shutil.copy(src, dst)
 
 
@@ -351,10 +365,10 @@ def rename_media(episode, nfo_data, dry_run):
         return
 
     if dry_run:
-        print(f'DRYRUN: rename "{episode.filepath.name}" -> "{new_episode_name}"')
+        logger.info('DRYRUN: rename "%s" -> "%s"', episode.filepath.name, new_episode_name)
         return
 
-    print(f'RENAMING: "{episode.filepath.name}" -> "{new_episode_name}"')
+    logger.info('RENAMING: "%s" -> "%s"', episode.filepath.name, new_episode_name)
     episode.filepath.rename(episode.filepath.parent.absolute() / new_episode_name)
 
 
