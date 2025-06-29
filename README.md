@@ -142,13 +142,28 @@ This approach uses python to rename all your files, which is a bit more complex 
     Your files will be renamed to the corresponding One Piece episode, i.e.:
     "[One Pace][1] Romance Dawn 01 [1080p][FB72C13F].mkv" -> "One Pace - S01E01 - Romance Dawn, the Dawn of an Adventure.mkv"
 
+
 [^1]: Inside 'exceptions.json' you can map any file name to a specific episode number. It looks in your specified season directory to see if any of the .mkv files have matching text in their filenames, then renames it as the corresponding episode number if found. If you have some strange episode naming, you may need to modify this json and add your episode filenames.
 
-### 5. Install XBMCnfoTVImporter
+### 5. Transcode Media (Optional)
+
+After renaming you can convert the episodes to MP4 using the x265 codec and embed the metadata from their `.nfo` files.
+
+1. Copy `transcode.py` from the `/dist/` folder to your `One Pace` directory.
+2. Run `python3 transcode.py --dry-run` to view the ffmpeg commands that would be executed.
+3. When satisfied remove `--dry-run` to transcode the files. Use `--replace` if you want the original files deleted after conversion.
+
+```
+    python3 transcode.py --replace
+```
+
+The script requires `ffmpeg` to be installed and will embed title, show title, season and episode metadata into the resulting `.mp4` file.
+
+### 6. Install XBMCnfoTVImporter
 
 You need to install [XBMCnfoTVImporter](https://github.com/gboudreau/XBMCnfoTVImporter.bundle) for plex in order to scan in One Pace. Follow the instructions and install.
 
-### 6. Scan In Plex
+### 7. Scan In Plex
 
 You need to swap to the XBMCnfoTVImporter agent in Plex to scan your new One Pace folder. 
 
