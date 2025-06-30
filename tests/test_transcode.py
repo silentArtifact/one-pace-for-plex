@@ -24,3 +24,17 @@ def test_parse_nfo(tmp_path):
         "season": "1",
         "episode": "10",
     }
+
+from transcode import prompt_directory
+
+
+def test_prompt_directory_handles_quotes(tmp_path, monkeypatch):
+    quoted = tmp_path / "with space"
+    quoted.mkdir()
+
+    def fake_input(prompt):
+        return f'"{quoted}"'
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    result = prompt_directory()
+    assert result == quoted

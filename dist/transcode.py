@@ -40,6 +40,8 @@ def prompt_directory(default: Path = Path(".")) -> Path:
     """Prompt the user for a directory, verifying existence."""
     while True:
         resp = input(f"Directory containing episodes [{default}]: ").strip()
+        # Handle Windows paths entered with surrounding quotes
+        resp = resp.strip('"').strip("'")
         path = Path(resp or default).expanduser()
         if path.exists():
             return path
