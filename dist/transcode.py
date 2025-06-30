@@ -13,11 +13,37 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from typing import Optional
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(message)s")
 logger = logging.getLogger(__name__)
 
 MKV_EXT = ".mkv"
 MP4_EXT = ".mp4"
+
+
+def prompt_bool(prompt: str, default: bool = False) -> bool:
+    """Prompt the user for a yes/no answer."""
+    opts = "Y/n" if default else "y/N"
+    while True:
+        resp = input(f"{prompt} [{opts}]: ").strip().lower()
+        if not resp:
+            return default
+        if resp in {"y", "yes"}:
+            return True
+        if resp in {"n", "no"}:
+            return False
+        print("Please answer 'y' or 'n'.")
+
+
+def prompt_directory(default: Path = Path(".")) -> Path:
+    """Prompt the user for a directory, verifying existence."""
+    while True:
+        resp = input(f"Directory containing episodes [{default}]: ").strip()
+        path = Path(resp or default).expanduser()
+        if path.exists():
+            return path
+        print(f"{path} does not exist. Please try again.")
 
 
 def parse_nfo(nfo_path: Path) -> dict[str, str]:
@@ -109,7 +135,11 @@ def transcode_file(media_path: Path, replace: bool, dry_run: bool, embed_artwork
         return
 
     logger.info("Running: %s", " ".join(cmd))
-    subprocess.run(cmd, check=True)
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as exc:
+        logger.error("ffmpeg failed for %s: %s", media_path, exc)
+        return
 
     if replace and media_path.suffix != MP4_EXT:
         media_path.unlink()
@@ -130,7 +160,7 @@ def main() -> None:
         description="Transcode media to mp4/x265 and embed metadata from nfo files"
     )
     parser.add_argument(
-        "directory", nargs="?", default=".", help="Root directory containing episodes"
+        "directory", nargs="?", help="Root directory containing episodes"
     )
     parser.add_argument(
         "--replace", action="store_true", help="Replace original files after transcoding"
@@ -143,9 +173,30 @@ def main() -> None:
         action="store_true",
         help="Embed season poster as cover art when available",
     )
+    parser.add_argument(
+        "-i",
+        "--interactive",
+        action="store_true",
+        help="Prompt for options even if arguments are supplied",
+    )
     args = parser.parse_args()
 
-    scan_directory(Path(args.directory), args.replace, args.dry_run, args.embed_artwork)
+    interactive = args.interactive or args.directory is None
+    directory = Path(args.directory) if args.directory else Path(".")
+
+    if interactive:
+        directory = prompt_directory(directory)
+        replace = prompt_bool("Replace original files after transcoding?", args.replace)
+        dry_run = prompt_bool("Perform a dry run only?", args.dry_run)
+        embed_artwork = prompt_bool(
+            "Embed season poster as cover art?", args.embed_artwork
+        )
+    else:
+        replace = args.replace
+        dry_run = args.dry_run
+        embed_artwork = args.embed_artwork
+
+    scan_directory(directory, replace, dry_run, embed_artwork)
 
 
 if __name__ == "__main__":
