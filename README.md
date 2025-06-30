@@ -150,8 +150,8 @@ This approach uses python to rename all your files, which is a bit more complex 
 After renaming you can convert the episodes to MP4 using the x265 codec and embed the metadata from their `.nfo` files.
 
 1. Copy `transcode.py` from the `/dist/` folder to your `One Pace` directory.
-2. Run `python3 transcode.py --dry-run` to view the ffmpeg commands that would be executed.
-3. When satisfied remove `--dry-run` to transcode the files. Use `--replace` if you want the original files deleted after conversion. Pass `--embed-artwork` to automatically attach the season poster to each episode.
+2. Run `python3 transcode.py` and follow the prompts. The script will ask for the location of your episodes and whether to replace the originals or embed cover artwork.
+   You can still provide `--dry-run`, `--replace` and `--embed-artwork` on the command line to skip the questions.
 
 ```
     python3 transcode.py --replace
