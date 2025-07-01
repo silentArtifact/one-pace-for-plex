@@ -13,6 +13,7 @@ def test_parse_nfo(tmp_path):
   <showtitle>One Pace</showtitle>
   <season>1</season>
   <episode>10</episode>
+  <plot>This is a test description.</plot>
 </episodedetails>
 """
     nfo_file = tmp_path / "test.nfo"
@@ -23,6 +24,7 @@ def test_parse_nfo(tmp_path):
         "showtitle": "One Pace",
         "season": "1",
         "episode": "10",
+        "description": "This is a test description.",
     }
 
 from transcode import prompt_directory

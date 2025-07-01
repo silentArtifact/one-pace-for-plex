@@ -157,7 +157,7 @@ After renaming you can convert the episodes to MP4 using the x265 codec and embe
     python3 transcode.py --replace
 ```
 
-The script requires `ffmpeg` to be installed and will embed title, show title, season and episode metadata into the resulting `.mp4` file. Additional metadata like the One Pace arc name, original anime episode references and optional cover artwork are also included.
+The script requires `ffmpeg` to be installed and will embed title, show title, season and episode metadata into the resulting `.mp4` file. Additional metadata like episode descriptions, the One Pace arc name, original anime episode references and optional cover artwork are also included.
 
 ### 6. Install XBMCnfoTVImporter
 
