@@ -53,10 +53,20 @@ def parse_nfo(nfo_path: Path) -> dict[str, str]:
     tree = ET.parse(nfo_path)
     root = tree.getroot()
     fields = {}
-    for tag in ["title", "showtitle", "season", "episode"]:
+    for tag in ["title", "showtitle", "season", "episode", "plot"]:
         el = root.find(tag)
         if el is not None and el.text:
-            fields[tag] = el.text
+            if tag == "plot":
+                description_lines = []
+                for line in el.text.splitlines():
+                    if line.strip().startswith("Manga Chapter(s):"):
+                        continue
+                    if line.strip().startswith("Anime Episode(s):"):
+                        continue
+                    description_lines.append(line)
+                fields["description"] = "\n".join(description_lines).strip()
+            else:
+                fields[tag] = el.text
     return fields
 
 
